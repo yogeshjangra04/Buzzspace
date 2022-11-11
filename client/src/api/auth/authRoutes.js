@@ -11,6 +11,7 @@ export const signup = async (data, profilePicture) => {
 
 export const login = async (email, password) => {
   const user = await axios({
+    baseURL:'http://localhost:8080',
     url: "/auth/login",
     method: "POST",
     data: { email, password },

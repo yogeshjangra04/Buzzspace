@@ -2,7 +2,7 @@ import classes from "./DashboardUsersProfile.module.css";
 import { useSelector, useDispatch } from "react-redux";
 import UserPosts from "../UserPosts/UserPosts";
 import ppIcon from "../../../images/pp-icon.webp";
-import coverImg from "../../../images/gootalk-cover.jpg";
+import coverImg from "../../../images/Buzzspace-cover.png";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useLocation, useNavigate } from "react-router";
@@ -94,9 +94,11 @@ const DashboardUsersProfile = () => {
       await req.put("/notifications", payload);
       setDisableReqBtn(true);
     } catch (error) {
-      await logout();
-      navigate("/login", { state: { from: location }, replace: true });
-      dispatch(userActions.logoutUser());
+      if (navigator.onLine) {
+        await logout();
+        navigate("/login", { state: { from: location }, replace: true });
+        dispatch(userActions.logoutUser());
+      }
     }
   };
 

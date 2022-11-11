@@ -25,9 +25,11 @@ const DashboardProfile = () => {
         const userPostsArray = await req.get(`/post/posts/${user.userId}`);
         setUserPosts(userPostsArray.data);
       } catch (error) {
-        await logout();
-        navigate("/login", { state: { from: location }, replace: true });
-        dispatch(userActions.logoutUser());
+        if (navigator.onLine) {
+          await logout();
+          navigate("/login", { state: { from: location }, replace: true });
+          dispatch(userActions.logoutUser());
+        }
       }
     };
 
@@ -41,7 +43,11 @@ const DashboardProfile = () => {
           <ProfileData onEditProfile={setEditProfile} />
           <div className={classes["profile-user-posts"]}>
             {userPosts.length > 0 ? (
-              <UserPosts posts={userPosts} user={user} />
+              <UserPosts
+                posts={userPosts}
+                user={user}
+                setPosts={setUserPosts}
+              />
             ) : (
               <span>No posts.</span>
             )}

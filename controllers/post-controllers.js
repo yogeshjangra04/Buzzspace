@@ -1,5 +1,6 @@
 const Post = require("../models/Post");
 const User = require("../models/User");
+const Comment = require("../models/Comment");
 const { cloudinary } = require("../utils/cloudinary");
 
 const newPostCtr = async (req, res) => {
@@ -16,8 +17,17 @@ const postUpdateCtr = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (post.userId === req.body.userId) {
+      if (
+        (req.body.desc === "" && req.body.image === "") ||
+        (req.body.desc === "" && post.image === "" && !req.body.image)
+      ) {
+        return res.status(403).json("A post can not be empty.");
+      }
       await post.updateOne({ $set: req.body });
-      return res.status(200).json("Post has been updated.");
+      const updatedPost = await Post.findById(req.params.id);
+      return res
+        .status(200)
+        .json({ msg: "Post has been updated.", data: updatedPost });
     } else {
       return res.status(403).json("You can only update your posts.");
     }
@@ -29,9 +39,15 @@ const postUpdateCtr = async (req, res) => {
 const deletePostCtr = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    if (post.userId === req.body.userId) {
+    if (post.createdAt < new Date(2023, 1, 1)) {
+      return res.status(403).json("This post is undeleteable.");
+    }
+    if (post.userId === req.params.userId) {
       await post.deleteOne();
-      return res.status(200).json("Post has benn deleted.");
+      await Comment.deleteMany({
+        postId: req.params.id,
+      });
+      return res.status(200).json("Post has been deleted.");
     } else {
       return res.status(403).json("You can only delete your posts.");
     }

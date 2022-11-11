@@ -23,15 +23,16 @@ app.enable("trust proxy");
 const PORT = process.env.PORT || 8080;
 
 mongoose.connect(
-  process.env.MONGODB_URI || "mongodb://localhost:27017/GootalkDB"
+  process.env.MONGODB_URI
 );
 mongoose.connection.on("connected", () => {
   console.log("Mongoose is connected.");
 });
+console.log(process.env.FRONT_END);
 
 app.use(
   cors({
-    origin: ["http://gootalk.herokuapp.com", "https://gootalk.herokuapp.com"],
+    origin: [process.env.FRONT_END, "https://buzz.herokuapp.com"],
     credentials: true,
   })
 );

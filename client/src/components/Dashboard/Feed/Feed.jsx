@@ -93,9 +93,11 @@ const Feed = () => {
         return;
       }
       setIsLoading(false);
-      await logout();
-      navigate("/login", { state: { from: location }, replace: true });
-      dispach(userActions.logoutUser());
+      if (navigator.onLine) {
+        await logout();
+        navigate("/login", { state: { from: location }, replace: true });
+        dispach(userActions.logoutUser());
+      }
     }
   };
 
@@ -118,13 +120,27 @@ const Feed = () => {
             return (
               <Post
                 ref={lastPost}
-                key={i}
+                key={post._id}
                 post={post}
                 postUser={postsUsers[i].data}
+                getPosts={getPosts}
+                pageStart={setPageStart}
+                posts={posts}
+                setPosts={setPosts}
               />
             );
           } else {
-            return <Post key={i} post={post} postUser={postsUsers[i].data} />;
+            return (
+              <Post
+                key={post._id}
+                post={post}
+                postUser={postsUsers[i].data}
+                getPosts={getPosts}
+                pageStart={setPageStart}
+                posts={posts}
+                setPosts={setPosts}
+              />
+            );
           }
         })
       ) : (

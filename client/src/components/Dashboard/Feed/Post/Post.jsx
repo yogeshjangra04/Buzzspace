@@ -1,4 +1,4 @@
-import { ThumbUp } from "@mui/icons-material";
+import { MoreVert, ThumbUp } from "@mui/icons-material";
 import ppIcon from "../../../../images/pp-icon-small.png";
 import classes from "./Post.module.css";
 import Card from "../../../UI/Card/Card";
@@ -10,12 +10,19 @@ import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
 import PostModal from "./PostModal/PostModal";
 import useLogout from "../../../../hooks/useLogout";
+import PostMenu from "./PostMenu/PostMenu";
+import PostDelete from "./PostMenu/PostDelete/PostDelete";
 
-const Post = React.forwardRef(({ post, postUser }, ref) => {
+const Post = React.forwardRef(({ post, postUser, posts, setPosts }, ref) => {
   const loggedInUser = useSelector((state) => state.user.user);
+  const [postUpdated, setPostUpdated] = useState(post);
   const [comments, setComments] = useState({ comments: [], users: [] });
   const [likes, setLikes] = useState(post.likes);
   const [isExpendedPost, setExpendedPost] = useState(false);
+  const [isUpdatePost, setUpdatePost] = useState(false);
+  const [isDeletePost, setIsDeletePost] = useState(false);
+  const [isPostMenu, setPostMenu] = useState(false);
+  const [slice, setSlice] = useState(150);
   const req = useAxiosPrivate();
   const dispach = useDispatch();
   const navigate = useNavigate();
@@ -44,24 +51,41 @@ const Post = React.forwardRef(({ post, postUser }, ref) => {
       });
       setLikes(updatedLikes.data);
     } catch (error) {
-      await logout();
-      navigate("/login", { state: { from: location }, replace: true });
-      dispach(userActions.logoutUser());
+      if (navigator.onLine) {
+        await logout();
+        navigate("/login", { state: { from: location }, replace: true });
+        dispach(userActions.logoutUser());
+      }
     }
   };
 
   const checkOnUserHandler = () => {
     navigate(
-      `/users/${postUser._id}/${postUser.firstname}-${postUser.lastname}`
+      `/users/${postUser._id || postUser.userId}/${postUser.firstname}-${
+        postUser.lastname
+      }`
     );
   };
 
   const onClose = () => {
     setExpendedPost(false);
+    setUpdatePost(false);
+  };
+
+  const onCloseDelete = () => {
+    setIsDeletePost(false);
   };
 
   return (
     <>
+      {isDeletePost && (
+        <PostDelete
+          post={post}
+          posts={posts}
+          setPosts={setPosts}
+          onClose={onCloseDelete}
+        />
+      )}
       {isExpendedPost && (
         <PostModal
           post={post}
@@ -71,42 +95,100 @@ const Post = React.forwardRef(({ post, postUser }, ref) => {
           setLikes={setLikes}
           comments={comments}
           setComments={setComments}
+          isUpdatePost={isUpdatePost}
+          postUpdated={postUpdated}
+          setPostUpdated={setPostUpdated}
         />
       )}
       <div className={classes["post-wrapper-for-ref"]} ref={ref}>
         <Card className={classes.post}>
           <div className={classes["post-upper"]}>
-            <img
-              className={classes["post-profile-img"]}
-              src={postUser.profilePicture || ppIcon}
-              alt={"profile"}
-              onClick={checkOnUserHandler}
-            />
-            <span
-              className={classes["post-name"]}
-            >{`${postUser.firstname} ${postUser.lastname}`}</span>
-            <span className={classes["post-time"]}>
-              {format(post.createdAt)}
-            </span>
+            <div className={classes["post-profile-name"]}>
+              <img
+                className={classes["post-profile-img"]}
+                src={postUser.profilePicture || ppIcon}
+                alt={"profile"}
+                onClick={checkOnUserHandler}
+              />
+              <span
+                className={classes["post-name"]}
+                onClick={checkOnUserHandler}
+              >{`${postUser.firstname} ${postUser.lastname}`}</span>
+              <span className={classes["post-time"]}>
+                {format(post.createdAt)}
+              </span>
+            </div>
+            {post.userId === loggedInUser.userId && (
+              <div
+                className={classes["post-menu"]}
+                onClick={() => setPostMenu(true)}
+              >
+                <button
+                  className={classes["post-menu-button"]}
+                  onFocus={() => setPostMenu(true)}
+                  onBlur={() => setPostMenu(false)}
+                >
+                  <MoreVert />
+                </button>
+                {isPostMenu && (
+                  <PostMenu
+                    post={post}
+                    posts={posts}
+                    setPosts={setPosts}
+                    setUpdatePost={setUpdatePost}
+                    setExpendedPost={setExpendedPost}
+                    setIsDeletePost={setIsDeletePost}
+                    isPostMenu={isPostMenu}
+                  />
+                )}
+              </div>
+            )}
           </div>
-          <div
-            className={classes["post-body"]}
-            onClick={() => setExpendedPost(true)}
-          >
-            <p className={classes["post-body-text"]}>{post.desc}</p>
-            {post.image &&
-              (post.image.includes("/image/") ? (
-                <div className={classes["img-video-wrapper"]}>
+          <div className={classes["post-body"]}>
+            <p
+              className={classes["post-body-text"]}
+              onClick={() => setExpendedPost(true)}
+            >
+              {postUpdated.desc.length > 150 ? (
+                <span>{postUpdated.desc.slice(0, slice)}</span>
+              ) : (
+                postUpdated.desc
+              )}
+            </p>
+            {slice === 150 && postUpdated.desc.length > 150 ? (
+              <span
+                className={classes["post-read-more-less"]}
+                onClick={() => setSlice(postUpdated.desc.length)}
+              >
+                ... read more
+              </span>
+            ) : (
+              postUpdated.desc.length > 150 && (
+                <span
+                  className={classes["post-read-more-less"]}
+                  onClick={() => setSlice(150)}
+                >
+                  {" "}
+                  show less
+                </span>
+              )
+            )}
+            {postUpdated.image &&
+              (postUpdated.image.includes("/image/") ? (
+                <div
+                  className={classes["img-video-wrapper"]}
+                  onClick={() => setExpendedPost(true)}
+                >
                   <img
                     className={classes["post-img"]}
-                    src={post.image}
+                    src={postUpdated.image}
                     alt="post img"
                   />
                 </div>
               ) : (
                 <div className={classes["img-video-wrapper"]}>
                   <video className={classes["post-video"]} controls>
-                    <source type="video/mp4" src={post.image} />
+                    <source type="video/mp4" src={postUpdated.image} />
                   </video>
                 </div>
               ))}

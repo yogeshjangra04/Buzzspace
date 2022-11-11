@@ -28,7 +28,7 @@
   cursor: default;
 }
 
-.ll-goo {
+.ll-Buzz {
   color: hsl(208.7, 100%, 53.7%);
   font-size: 4rem;
   font-weight: 900;
@@ -39,14 +39,14 @@
   margin-top: 0;
 }
 
-.ll-goo:hover {
+.ll-Buzz:hover {
   text-shadow: 30px 0px 100px hsl(208.7, 100%, 53.7%, 1),
     30px -20px 1100px hsl(208.7, 100%, 53.7%, 1),
     10px 20px 120px rgba(54, 248, 248, 1);
   cursor: default;
 }
 
-.ll-talk {
+.ll-space {
   color: hsl(220.3, 62.5%, 22%);
 }
 
@@ -78,7 +78,7 @@
     text-shadow: 40px -30px 60px hsl(220.3, 62.5%, 22%, 0.2),
       40px -60px 60px rgb(30, 87, 202, 0.4);
   }
-  .ll-goo {
+  .ll-Buzz {
     font-size: 2rem;
     text-shadow: 30px -50px 50px hsl(208.7, 100%, 53.7%, 0.7),
       30px -20px 60px hsl(208.7, 100%, 53.7%, 0.8),

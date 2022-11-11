@@ -102,7 +102,7 @@ const Navbar = () => {
               className={classes["navbar-logo"]}
               onClick={activateHomeHandler}
             >
-              Goo<span className={classes["logo-span"]}>talk</span>
+              Buzz<span className={classes["logo-span"]}>space</span>
             </h1>
           </Link>
         </div>
